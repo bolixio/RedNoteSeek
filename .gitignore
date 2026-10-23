@@ -1,0 +1,30 @@
+# ===== Gradle =====
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ===== 本地环境配置 =====
+local.properties
+
+# ===== IDE =====
+.idea/
+*.iml
+*.iws
+*.ipr
+.navigation/
+
+# ===== 构建产物 =====
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+
+# ===== Claude 工作区 =====
+.claude/worktrees/
+.superpowers/

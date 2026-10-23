@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  自适应图标前景。path 与 docs/assets/logo.svg 完全一致（1024 坐标系），
+  外层 group 缩放到 108dp 画布，按笔画重心（不是外接框，镜柄会把外接框往右下拉）居中；
+  缩放取到离重心最远点（镜柄末端）约 34dp：略超 66dp 安全区，仍在圆形遮罩可见的 72dp 内。
+  scale / translate 改动时 ic_launcher_monochrome 同步改。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.06406"
+        android:scaleY="0.06406"
+        android:translateX="24.731"
+        android:translateY="21.051">
+        <group>
+            <!-- 本子在镜片周围断开：外框顺时针 + 圆逆时针，挖出一个洞 -->
+            <clip-path android:pathData="M-200,-200 H1224 V1224 H-200 Z M393,575 A212,212 0 1 0 817,575 A212,212 0 1 0 393,575 Z" />
+            <!-- 本身 -->
+            <path
+                android:pathData="M240,130 H610 A90,90 0 0 1 700,220 V790 A90,90 0 0 1 610,880 H240 A90,90 0 0 1 150,790 V220 A90,90 0 0 1 240,130 Z"
+                android:strokeColor="#FFFF2442"
+                android:strokeWidth="62"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round" />
+            <!-- 书脊 -->
+            <path
+                android:pathData="M300,160 V850"
+                android:strokeColor="#FFFF2442"
+                android:strokeWidth="50"
+                android:strokeLineCap="round" />
+            <!-- 正文 -->
+            <path
+                android:pathData="M390,400 H640 M390,470 H640 M390,540 H640 M390,610 H580 M390,680 H500"
+                android:strokeColor="#FFFF2442"
+                android:strokeWidth="34"
+                android:strokeLineCap="round" />
+        </group>
+        <!-- 书签 -->
+        <path
+            android:pathData="M520,130 V310 L565,272 L610,310 V130 Z"
+            android:fillColor="#FFFF2442"
+            android:strokeColor="#FFFF2442"
+            android:strokeWidth="20"
+            android:strokeLineJoin="round" />
+        <!-- 透过镜片看到的正文：同一组正文以镜片中心为原点放大 1.3 倍，裁到镜片内侧 -->
+        <group>
+            <clip-path android:pathData="M493,575 A112,112 0 1 0 717,575 A112,112 0 1 0 493,575 Z" />
+            <group
+                android:pivotX="605"
+                android:pivotY="575"
+                android:scaleX="1.3"
+                android:scaleY="1.3">
+                <path
+                    android:pathData="M390,400 H640 M390,470 H640 M390,540 H640 M390,610 H580 M390,680 H500"
+                    android:strokeColor="#FFFF2442"
+                    android:strokeWidth="34"
+                    android:strokeLineCap="round" />
+            </group>
+        </group>
+        <!-- 放大镜：镜片 + 镜柄 -->
+        <path
+            android:pathData="M445,575 A160,160 0 1 0 765,575 A160,160 0 1 0 445,575 Z"
+            android:strokeColor="#FFFF2442"
+            android:strokeWidth="52" />
+        <path
+            android:pathData="M765,735 L840,810"
+            android:strokeColor="#FFFF2442"
+            android:strokeWidth="92"
+            android:strokeLineCap="round" />
+    </group>
+</vector>

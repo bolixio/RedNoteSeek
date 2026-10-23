@@ -1,0 +1,7 @@
+RedNoteSeek 随附的第三方资源
+
+1. Shrikhand（字体）
+   设计：Jonny Pinhorn，Copyright (c) 2015 Jonny Pinhorn
+   授权：SIL Open Font License 1.1（https://openfontlicense.org）
+   文件：design-system/src/main/res/font/shrikhand_regular.ttf（Google Fonts 原版，未修改）
+   许可全文：design-system/src/main/assets/licenses/Shrikhand-OFL.txt（随 APK 分发）

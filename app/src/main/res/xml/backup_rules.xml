@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- M1：占位，备份白名单/数据提取策略后续按需要补 -->
+<full-backup-content>
+    <exclude domain="sharedpref" path="." />
+</full-backup-content>
