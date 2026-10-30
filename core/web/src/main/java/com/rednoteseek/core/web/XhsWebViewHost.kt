@@ -2,6 +2,8 @@ package com.rednoteseek.core.web
 
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import com.rednoteseek.designsystem.theme.LocalPageZoom
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 
@@ -11,6 +13,8 @@ import androidx.compose.ui.viewinterop.AndroidView
  */
 @Composable
 fun XhsWebViewHost(engine: XhsWebEngine, modifier: Modifier = Modifier) {
+    val zoom = LocalPageZoom.current
+    LaunchedEffect(zoom) { engine.applyZoom(zoom) }
     AndroidView(
         factory = { context ->
             engine.attachTo(context)
