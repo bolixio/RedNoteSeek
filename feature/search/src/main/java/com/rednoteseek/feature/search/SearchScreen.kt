@@ -1,4 +1,5 @@
 package com.rednoteseek.feature.search
+import androidx.compose.ui.unit.Density
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
