@@ -2,8 +2,6 @@ package com.rednoteseek.core.web
 
 import android.view.ViewGroup
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import com.rednoteseek.designsystem.theme.LocalPageZoom
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 
@@ -12,9 +10,9 @@ import androidx.compose.ui.viewinterop.AndroidView
  * 登录后由上层原生界面完全遮住即可（真机已验证遮住时滚动仍能触发翻页）。
  */
 @Composable
-fun XhsWebViewHost(engine: XhsWebEngine, modifier: Modifier = Modifier) {
-    val zoom = LocalPageZoom.current
-    LaunchedEffect(zoom) { engine.applyZoom(zoom) }
+fun XhsWebViewHost(engine: XhsWebEngine, modifier: Modifier = Modifier, pageZoom: () -> Float = { 1f }) {
+    val zoom = pageZoom()
+    androidx.compose.runtime.LaunchedEffect(zoom) { engine.applyZoom(zoom) }
     AndroidView(
         factory = { context ->
             engine.attachTo(context)
