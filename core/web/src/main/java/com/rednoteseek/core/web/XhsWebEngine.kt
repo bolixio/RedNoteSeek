@@ -95,7 +95,7 @@ class XhsWebEngine(appContext: Context, initialUrl: String? = XhsUrls.HOME, priv
             message.data?.let { raw ->
             // 滚动信号直接短路处理，不进解析器（body 为空会被丢弃）
             if (raw.contains("__scroll__")) {
-                com.rednoteseek.designsystem.theme.BottomBarVisibility.onScroll()
+                BottomBarVisibility.onScroll()
                 return@addWebMessageListener
             }
             raw.let(CapturedResponse::parse)?.let(::onCaptured)
