@@ -24,6 +24,12 @@ internal object PageScripts {
         (function () {
           if (window.__rnsHooked || !window.RnsBridge) return;
           window.__rnsHooked = true;
+          // 滚动上报：网页滚动时通知原生层隐藏底栏
+          var lastScrollY = -1;
+          window.addEventListener('scroll', function () {
+            var y = window.scrollY;
+            if (Math.abs(y - lastScrollY) > 2) { lastScrollY = y; try { RnsBridge.postMessage(JSON.stringify({ url: '__scroll__', request: '', status: 0, body: '' })); } catch (e) {} }
+          }, { passive: true });
           var MATCH = /\/api\/sns\/web\/|\/api\/sns\/agentspark\/web\/|\/api\/im\/web\/users\/following\/all/;
           var LIST = new RegExp(${jsString(LIST_PAGE_PATTERN)});
           window.__rnsListPending = 0;
