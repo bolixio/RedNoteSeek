@@ -94,12 +94,18 @@ private fun Root() {
     val topScale by app.settingsStore.topBarScale.collectAsStateWithLifecycle(initialValue = 1f)
     val bottomScale by app.settingsStore.bottomBarScale.collectAsStateWithLifecycle(initialValue = 1f)
     val barColorIndex by app.settingsStore.barColor.collectAsStateWithLifecycle(initialValue = 0)
+    val gridColumns by app.settingsStore.gridColumns.collectAsStateWithLifecycle(initialValue = 2)
+    val pageZoom by app.settingsStore.pageZoom.collectAsStateWithLifecycle(initialValue = 1f)
     val topOpacity by app.settingsStore.topBarOpacity.collectAsStateWithLifecycle(initialValue = 1f)
     val bottomOpacity by app.settingsStore.bottomBarOpacity.collectAsStateWithLifecycle(initialValue = 1f)
     val barColor = com.rednoteseek.designsystem.theme.BarPalette.getOrNull(barColorIndex)?.second
     BarStyleProvider(
         style = BarStyle(topScale = topScale, bottomScale = bottomScale, barColor = barColor, topOpacity = topOpacity, bottomOpacity = bottomOpacity),
     ) {
+        androidx.compose.runtime.CompositionLocalProvider(
+            com.rednoteseek.designsystem.theme.LocalGridColumns provides gridColumns,
+            com.rednoteseek.designsystem.theme.LocalPageZoom provides pageZoom,
+        ) {
     val engine = app.webEngine
     val pageEngine = app.pageEngine
     val session: SessionViewModel = viewModel()
@@ -281,6 +287,10 @@ private fun Root() {
                                             topBarScale = topScale,
                                             bottomBarScale = bottomScale,
                                             barColorIndex = barColorIndex,
+                        gridColumns = gridColumns,
+                        pageZoom = pageZoom,
+                        onGridColumnsChange = { n -> scope.launch { app.settingsStore.setGridColumns(n) } },
+                        onPageZoomChange = { v -> scope.launch { app.settingsStore.setPageZoom(v) } },
                                             topBarOpacity = topOpacity,
                                             bottomBarOpacity = bottomOpacity,
                                             onTopBarScaleChange = { v -> scope.launch { app.settingsStore.setTopBarScale(v) } },
@@ -297,6 +307,7 @@ private fun Root() {
         }
     }
     }
+        }
 }
 
 private const val PREWARM_DELAY_MS = 3_000L
