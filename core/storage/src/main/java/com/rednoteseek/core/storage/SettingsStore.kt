@@ -68,4 +68,62 @@ class SettingsStore(private val context: Context) {
             it.remove(loginAvatarKey)
         }
     }
+
+
+    // ==================== 界面样式（顶栏 / 底栏缩放、颜色、透明度）====================
+
+    /** 顶栏整体缩放：1f 默认，0.6f~1.4f。图标文字等比缩放（LocalDensity 方案）。 */
+    private val topBarScaleKey = floatPreferencesKey("bar_top_scale")
+
+    val topBarScale: Flow<Float> = context.settingsDataStore.data.map { prefs ->
+        (prefs[topBarScaleKey] ?: 1f).coerceIn(0.6f, 1.4f)
+    }
+
+    suspend fun setTopBarScale(v: Float) {
+        context.settingsDataStore.edit { it[topBarScaleKey] = v.coerceIn(0.6f, 1.4f) }
+    }
+
+    /** 底栏整体缩放。 */
+    private val bottomBarScaleKey = floatPreferencesKey("bar_bottom_scale")
+
+    val bottomBarScale: Flow<Float> = context.settingsDataStore.data.map { prefs ->
+        (prefs[bottomBarScaleKey] ?: 1f).coerceIn(0.6f, 1.4f)
+    }
+
+    suspend fun setBottomBarScale(v: Float) {
+        context.settingsDataStore.edit { it[bottomBarScaleKey] = v.coerceIn(0.6f, 1.4f) }
+    }
+
+    /** 栏背景色板索引（BarPalette 下标）；0 = 跟随主题。 */
+    private val barColorKey = intPreferencesKey("bar_color")
+
+    val barColor: Flow<Int> = context.settingsDataStore.data.map { prefs ->
+        prefs[barColorKey] ?: 0
+    }
+
+    suspend fun setBarColor(index: Int) {
+        context.settingsDataStore.edit { it[barColorKey] = index.coerceIn(0, 9) }
+    }
+
+    /** 顶栏背景不透明度 0f~1f。 */
+    private val topBarOpacityKey = floatPreferencesKey("bar_top_opacity")
+
+    val topBarOpacity: Flow<Float> = context.settingsDataStore.data.map { prefs ->
+        (prefs[topBarOpacityKey] ?: 1f).coerceIn(0.2f, 1f)
+    }
+
+    suspend fun setTopBarOpacity(v: Float) {
+        context.settingsDataStore.edit { it[topBarOpacityKey] = v.coerceIn(0.2f, 1f) }
+    }
+
+    /** 底栏背景不透明度 0f~1f。 */
+    private val bottomBarOpacityKey = floatPreferencesKey("bar_bottom_opacity")
+
+    val bottomBarOpacity: Flow<Float> = context.settingsDataStore.data.map { prefs ->
+        (prefs[bottomBarOpacityKey] ?: 1f).coerceIn(0.2f, 1f)
+    }
+
+    suspend fun setBottomBarOpacity(v: Float) {
+        context.settingsDataStore.edit { it[bottomBarOpacityKey] = v.coerceIn(0.2f, 1f) }
+    }
 }
