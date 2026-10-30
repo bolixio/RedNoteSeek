@@ -1,5 +1,8 @@
 package com.rednoteseek.feature.detail
 
+import android.graphics.SurfaceTexture
+import android.view.Surface
+import android.view.TextureView
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,20 +14,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.PlayerView
 import coil3.compose.AsyncImage
 
 /**
- * 视频播放器，基于 Media3 ExoPlayer。
+ * 视频播放器，基于 Media3 ExoPlayer + TextureView。
  *
- * - 自动播放（muted=false）；用户可点击 ▶︎ / ⏸ 按钮控制
- * - 进入 detail 时自动 init，离开时自动 release
- * - url 来自 NoteVideo.playableUrl()（v1/feed 的 video.media.stream，优先 mp4）
- * - 第一帧渲染出来之前在上面盖着封面 [coverUrl]，避免从预览切过来时黑屏闪一下
+ * 不用 PlayerView/SurfaceView：SurfaceView 是独立窗口挖洞图层，在本 App（WebView 垫底 + Compose 导航）
+ * 的图层结构里滚动/转场时洞和最后一帧不同步，出现画面残影遮挡（真机踩坑）。TextureView 是普通 View 层，
+ * 严格跟随布局滚动与回收，无残影。
+ *
+ * - 自动播放；进入 detail 自动 init，离开自动 release
+ * - 第一帧渲染出来之前在上面盖着封面 [coverUrl]，避免黑屏闪一下
+ * - 切后台自动暂停，回前台恢复（音视频行为与官方客户端一致）
  */
 @Composable
 fun VideoPlayer(
@@ -34,6 +42,7 @@ fun VideoPlayer(
     autoPlay: Boolean = true,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val exoPlayer = remember(url) {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(MediaItem.fromUri(url))
@@ -57,28 +66,47 @@ fun VideoPlayer(
         }
     }
 
+    // 切后台自动暂停、回前台恢复
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> exoPlayer.playWhenReady = false
+                Lifecycle.Event.ON_RESUME -> exoPlayer.playWhenReady = autoPlay
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     Box(modifier) {
-        PlayerSurface(exoPlayer)
+        AndroidView(
+            factory = { ctx ->
+                TextureView(ctx).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+                    surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                        override fun onSurfaceTextureAvailable(st: SurfaceTexture, w: Int, h: Int) {
+                            exoPlayer.setVideoSurface(Surface(st))
+                        }
+
+                        override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, w: Int, h: Int) = Unit
+
+                        override fun onSurfaceTextureDestroyed(st: SurfaceTexture): Boolean {
+                            exoPlayer.setVideoSurface(null)
+                            return true
+                        }
+
+                        override fun onSurfaceTextureUpdated(st: SurfaceTexture) = Unit
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
         if (!firstFrameShown && coverUrl != null) {
             AsyncImage(model = coverUrl, contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
         }
     }
-}
-
-@Composable
-private fun PlayerSurface(exoPlayer: ExoPlayer) {
-    AndroidView(
-        factory = { ctx ->
-            PlayerView(ctx).apply {
-                player = exoPlayer
-                useController = true   // 显示原生控制条
-                setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                )
-            }
-        },
-        modifier = Modifier.fillMaxSize(),
-    )
 }
