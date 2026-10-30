@@ -1,6 +1,15 @@
 package com.rednoteseek.app.ui
 
 import android.net.Uri
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.unit.dp
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -43,6 +52,7 @@ import com.rednoteseek.designsystem.component.BsToastHost
 import com.rednoteseek.designsystem.component.BsToastState
 import com.rednoteseek.designsystem.component.LocalShowMessage
 import com.rednoteseek.designsystem.theme.BsSpacing
+import com.rednoteseek.designsystem.theme.BottomBarVisibility
 import com.rednoteseek.designsystem.theme.LocalBarStyle
 import com.rednoteseek.designsystem.theme.barBaseColor
 
@@ -139,25 +149,58 @@ fun AppShell(
     val showMessage = remember(toast) { { text: String -> toast.show(text) } }
     CompositionLocalProvider(LocalShowMessage provides showMessage) {
         Scaffold(
+            // containerColor 透明：底栏半透明时能透出下层 WebView / 内容（否则被 Scaffold 默认背景挡住，透明度无效）
+            containerColor = Color.Transparent,
             bottomBar = {
-                if (!hideBottomBar) {
-                    // 界面样式：底栏等比缩放（Density 缩放让图标文字自适应）+ 背景色/透明度
-                    val barStyle = LocalBarStyle.current
-                    val density = LocalDensity.current
-                    val scaledDensity = Density(density.density * barStyle.bottomScale, density.fontScale * barStyle.bottomScale)
-                    val base = barBaseColor(barStyle)
-                    val bg = base.copy(alpha = base.alpha * barStyle.bottomOpacity)
-                    CompositionLocalProvider(LocalDensity provides scaledDensity) {
-                        Surface(color = bg) {
-                            NavigationBar(containerColor = Color.Transparent) {
-                                Destination.entries.filter { it.isTab }.forEach { dest ->
-                                    val selected = currentDestination?.hierarchy?.any { it.route == dest.route } == true
-                                    NavigationBarItem(
-                                        selected = selected,
-                                        onClick = { openTab(dest) },
-                                        icon = { Icon(dest.navIcon(selected), contentDescription = null) },
-                                        label = { Text(dest.label) },
-                                    )
+                val barVisible = BottomBarVisibility.visible
+                AnimatedVisibility(
+                    visible = hideBottomBar.not() && barVisible,
+                    enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(220)),
+                    exit = slideOutVertically(targetOffsetY = { it }, animationSpec = tween(180)),
+                ) {
+                    if (!hideBottomBar) {
+                        // 酷安风格：居中悬浮胶囊底栏（半透明玻璃感），滚动时自动隐藏
+                        val barStyle = LocalBarStyle.current
+                        val density = LocalDensity.current
+                        val scaledDensity = Density(density.density * barStyle.bottomScale, density.fontScale * barStyle.bottomScale)
+                        val base = barBaseColor(barStyle)
+                        val bg = base.copy(alpha = base.alpha * barStyle.bottomOpacity)
+                        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            CompositionLocalProvider(LocalDensity provides scaledDensity) {
+                                Surface(
+                                    color = bg,
+                                    shape = RoundedCornerShape(percent = 50),
+                                    shadowElevation = 6.dp,
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+                                    modifier = Modifier
+                                        .padding(horizontal = 40.dp, vertical = 10.dp)
+                                        .fillMaxWidth(0.82f),
+                                ) {
+                                    Row(
+                                        Modifier.fillMaxWidth().height(56.dp),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Destination.entries.filter { it.isTab }.forEach { dest ->
+                                            val selected = currentDestination?.hierarchy?.any { it.route == dest.route } == true
+                                            val tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(20.dp))
+                                                    .clickable { openTab(dest) }
+                                                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                                            ) {
+                                                Icon(
+                                                    dest.navIcon(selected),
+                                                    contentDescription = dest.label,
+                                                    tint = tint,
+                                                    modifier = Modifier.size(22.dp),
+                                                )
+                                                Text(dest.label, style = MaterialTheme.typography.labelSmall, color = tint)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
