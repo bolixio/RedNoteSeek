@@ -93,7 +93,7 @@ import com.rednoteseek.designsystem.component.SourceCard
 import com.rednoteseek.designsystem.format.mediaAspect
 import com.rednoteseek.designsystem.theme.BsShapes
 import com.rednoteseek.designsystem.theme.BsSize
-import com.rednoteseek.designsystem.theme.BottomBarVisibility
+import com.rednoteseek.core.web.BottomBarVisibility
 import com.rednoteseek.designsystem.theme.BsSpacing
 import com.rednoteseek.designsystem.theme.LocalBarStyle
 import kotlinx.coroutines.flow.filter
