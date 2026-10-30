@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -157,7 +159,7 @@ fun AppShell(
             // containerColor 透明：底栏半透明时能透出下层 WebView / 内容（否则被 Scaffold 默认背景挡住，透明度无效）
             containerColor = Color.Transparent,
             bottomBar = {
-                val barVisible = BottomBarVisibility.visible
+                val barVisible = BottomBarVisibility.visible.value
                 AnimatedVisibility(
                     visible = hideBottomBar.not() && barVisible,
                     enter = slideInVertically(initialOffsetY = { it }, animationSpec = tween(220)),
