@@ -40,6 +40,8 @@ import com.rednoteseek.core.web.WebSearchSource
 import com.rednoteseek.core.web.XhsUrls
 import com.rednoteseek.core.web.XhsWebViewHost
 import com.rednoteseek.designsystem.component.BsLoadingState
+import com.rednoteseek.designsystem.theme.BarStyle
+import com.rednoteseek.designsystem.theme.BarStyleProvider
 import com.rednoteseek.designsystem.theme.RedNoteSeekTheme
 import com.rednoteseek.feature.auth.XhsLoginOverlay
 import com.rednoteseek.feature.detail.NoteScreen
@@ -88,6 +90,16 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun Root() {
     val app = LocalContext.current.applicationContext as RedNoteSeekApp
+    // 界面样式：读取用户自定义的顶/底栏缩放、颜色与透明度（DataStore 持久化）
+    val topScale by app.settingsStore.topBarScale.collectAsStateWithLifecycle(initialValue = 1f)
+    val bottomScale by app.settingsStore.bottomBarScale.collectAsStateWithLifecycle(initialValue = 1f)
+    val barColorIndex by app.settingsStore.barColor.collectAsStateWithLifecycle(initialValue = 0)
+    val topOpacity by app.settingsStore.topBarOpacity.collectAsStateWithLifecycle(initialValue = 1f)
+    val bottomOpacity by app.settingsStore.bottomBarOpacity.collectAsStateWithLifecycle(initialValue = 1f)
+    val barColor = com.rednoteseek.designsystem.theme.BarPalette.getOrNull(barColorIndex)?.second
+    BarStyleProvider(
+        style = BarStyle(topScale = topScale, bottomScale = bottomScale, barColor = barColor, topOpacity = topOpacity, bottomOpacity = bottomOpacity),
+    ) {
     val engine = app.webEngine
     val pageEngine = app.pageEngine
     val session: SessionViewModel = viewModel()
@@ -263,16 +275,27 @@ private fun Root() {
                     val themeMode by app.settingsStore.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
                     val scope = rememberCoroutineScope()
                     SettingsScreen(
-                        nickname = (loginState as? LoginState.LoggedIn)?.nickname.orEmpty(),
-                        themeMode = themeMode,
-                        versionName = BuildConfig.VERSION_NAME,
-                        onThemeModeChange = { mode -> scope.launch { app.settingsStore.setThemeMode(mode) } },
-                        onClearHistory = { scope.launch { session.searchHistory.clear() } },
-                        onLogout = engine::logout,
-                    )
+                                            nickname = (loginState as? LoginState.LoggedIn)?.nickname.orEmpty(),
+                                            themeMode = themeMode,
+                                            versionName = BuildConfig.VERSION_NAME,
+                                            topBarScale = topScale,
+                                            bottomBarScale = bottomScale,
+                                            barColorIndex = barColorIndex,
+                                            topBarOpacity = topOpacity,
+                                            bottomBarOpacity = bottomOpacity,
+                                            onTopBarScaleChange = { v -> scope.launch { app.settingsStore.setTopBarScale(v) } },
+                                            onBottomBarScaleChange = { v -> scope.launch { app.settingsStore.setBottomBarScale(v) } },
+                                            onBarColorChange = { idx -> scope.launch { app.settingsStore.setBarColor(idx) } },
+                                            onTopBarOpacityChange = { v -> scope.launch { app.settingsStore.setTopBarOpacity(v) } },
+                                            onBottomBarOpacityChange = { v -> scope.launch { app.settingsStore.setBottomBarOpacity(v) } },
+                                            onThemeModeChange = { mode -> scope.launch { app.settingsStore.setThemeMode(mode) } },
+                                            onClearHistory = { scope.launch { session.searchHistory.clear() } },
+                                            onLogout = engine::logout,
+                                        )
                 },
             )
         }
+    }
     }
 }
 
