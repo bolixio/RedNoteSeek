@@ -92,7 +92,14 @@ class XhsWebEngine(appContext: Context, initialUrl: String? = XhsUrls.HOME, priv
         ) { "系统 WebView 版本过低，请在应用商店更新 Android System WebView" }
 
         WebViewCompat.addWebMessageListener(webView, PageScripts.BRIDGE_NAME, setOf(XhsUrls.ORIGIN)) { _, message, _, _, _ ->
-            message.data?.let(CapturedResponse::parse)?.let(::onCaptured)
+            message.data?.let { raw ->
+            // 滚动信号直接短路处理，不进解析器（body 为空会被丢弃）
+            if (raw.contains("__scroll__")) {
+                com.rednoteseek.designsystem.theme.BottomBarVisibility.onScroll()
+                return@addWebMessageListener
+            }
+            raw.let(CapturedResponse::parse)?.let(::onCaptured)
+        }
         }
         // 必须在首次 loadUrl 之前注册，钩子才会先于页面脚本执行
         WebViewCompat.addDocumentStartJavaScript(webView, PageScripts.HOOK, setOf(XhsUrls.ORIGIN))
@@ -113,6 +120,12 @@ class XhsWebEngine(appContext: Context, initialUrl: String? = XhsUrls.HOME, priv
     }
 
     fun reloadHome() = webView.loadUrl(XhsUrls.HOME)
+
+    /** 网页内容缩放：CSS zoom 对整页布局生效（含视频、图片、文字）。 */
+    fun applyZoom(scale: Float) {
+        val s = scale.coerceIn(0.5f, 1.2f)
+        webView.evaluateJavascript("document.documentElement.style.zoom = '$s';", null)
+    }
 
     private var started = false
 
