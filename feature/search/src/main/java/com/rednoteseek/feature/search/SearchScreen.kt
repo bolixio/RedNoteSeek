@@ -39,6 +39,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -61,6 +62,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -91,6 +93,7 @@ import com.rednoteseek.designsystem.format.mediaAspect
 import com.rednoteseek.designsystem.theme.BsShapes
 import com.rednoteseek.designsystem.theme.BsSize
 import com.rednoteseek.designsystem.theme.BsSpacing
+import com.rednoteseek.designsystem.theme.LocalBarStyle
 import kotlinx.coroutines.flow.filter
 import kotlin.math.roundToInt
 
@@ -159,7 +162,12 @@ fun SearchScreen(
         keyboard?.show()
     }
 
+    // 界面样式：顶栏等比缩放（Density 方案，图标/文字/间距自适应）
+    val barStyle = LocalBarStyle.current
+    val baseDensity = LocalDensity.current
+    val topScaledDensity = Density(baseDensity.density * barStyle.topScale, baseDensity.fontScale * barStyle.topScale)
     Column(modifier.fillMaxSize().nestedScroll(collapseConnection)) {
+        CompositionLocalProvider(LocalDensity provides topScaledDensity) {
         // 外层 Box 承担折叠：measure 拿到顶栏原始高度，按 titleOffset 缩减可见高度并整体上移
         Box(
             Modifier
@@ -234,6 +242,8 @@ fun SearchScreen(
                 }
             }
         }
+        }
+
         Box(Modifier.fillMaxSize()) {
             when (val s = state) {
                 SearchViewModel.State.Idle -> HistoryPanel(
