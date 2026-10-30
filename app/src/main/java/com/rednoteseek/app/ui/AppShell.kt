@@ -24,6 +24,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -39,6 +43,8 @@ import com.rednoteseek.designsystem.component.BsToastHost
 import com.rednoteseek.designsystem.component.BsToastState
 import com.rednoteseek.designsystem.component.LocalShowMessage
 import com.rednoteseek.designsystem.theme.BsSpacing
+import com.rednoteseek.designsystem.theme.LocalBarStyle
+import com.rednoteseek.designsystem.theme.barBaseColor
 
 /** 点击列表里的笔记：笔记 ID、列表顺序（定位网页卡片用）、卡片上已有的内容。 */
 typealias NoteClick = (noteId: String, order: List<String>, preview: NoteCard?) -> Unit
@@ -135,15 +141,25 @@ fun AppShell(
         Scaffold(
             bottomBar = {
                 if (!hideBottomBar) {
-                    NavigationBar {
-                        Destination.entries.filter { it.isTab }.forEach { dest ->
-                            val selected = currentDestination?.hierarchy?.any { it.route == dest.route } == true
-                            NavigationBarItem(
-                                selected = selected,
-                                onClick = { openTab(dest) },
-                                icon = { Icon(dest.navIcon(selected), contentDescription = null) },
-                                label = { Text(dest.label) },
-                            )
+                    // 界面样式：底栏等比缩放（Density 缩放让图标文字自适应）+ 背景色/透明度
+                    val barStyle = LocalBarStyle.current
+                    val density = LocalDensity.current
+                    val scaledDensity = Density(density.density * barStyle.bottomScale, density.fontScale * barStyle.bottomScale)
+                    val base = barBaseColor(barStyle)
+                    val bg = base.copy(alpha = base.alpha * barStyle.bottomOpacity)
+                    CompositionLocalProvider(LocalDensity provides scaledDensity) {
+                        Surface(color = bg) {
+                            NavigationBar(containerColor = Color.Transparent) {
+                                Destination.entries.filter { it.isTab }.forEach { dest ->
+                                    val selected = currentDestination?.hierarchy?.any { it.route == dest.route } == true
+                                    NavigationBarItem(
+                                        selected = selected,
+                                        onClick = { openTab(dest) },
+                                        icon = { Icon(dest.navIcon(selected), contentDescription = null) },
+                                        label = { Text(dest.label) },
+                                    )
+                                }
+                            }
                         }
                     }
                 }
