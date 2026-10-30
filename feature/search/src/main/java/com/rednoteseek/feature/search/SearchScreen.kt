@@ -93,6 +93,7 @@ import com.rednoteseek.designsystem.component.SourceCard
 import com.rednoteseek.designsystem.format.mediaAspect
 import com.rednoteseek.designsystem.theme.BsShapes
 import com.rednoteseek.designsystem.theme.BsSize
+import com.rednoteseek.designsystem.theme.BottomBarVisibility
 import com.rednoteseek.designsystem.theme.BsSpacing
 import com.rednoteseek.designsystem.theme.LocalBarStyle
 import kotlinx.coroutines.flow.filter
@@ -315,12 +316,13 @@ private fun ResultGrid(
             val info = gridState.layoutInfo
             (info.visibleItemsInfo.lastOrNull()?.index ?: -1) to info.totalItemsCount
         }
+            .onEach { BottomBarVisibility.onScroll() }
             .filter { (last, total) -> total > 0 && last >= total - 10 }
             .collect { onLoadMore() }
     }
     LazyVerticalStaggeredGrid(
         state = gridState,
-        columns = StaggeredGridCells.Fixed(2),
+        columns = StaggeredGridCells.Fixed(com.rednoteseek.designsystem.theme.LocalGridColumns.current),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = BsSpacing.sm, vertical = BsSpacing.sm),
         verticalItemSpacing = BsSpacing.sm,
