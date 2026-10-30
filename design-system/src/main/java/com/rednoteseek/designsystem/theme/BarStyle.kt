@@ -55,19 +55,3 @@ fun barBaseColor(style: BarStyle): Color {
 fun BarStyleProvider(style: BarStyle, content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalBarStyle provides style, content = content)
 }
-
-/** 底栏显隐信号：网页/列表滚动时隐藏，停止滚动 300ms 后显示。全局单例，滚动事件源调用 onScroll。 */
-object BottomBarVisibility {
-    private val _visible = androidx.compose.runtime.mutableStateOf(true)
-    val visible: Boolean get() = _visible.value
-
-    private var hideTask: java.util.concurrent.ScheduledFuture<*>? = null
-    private val scheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor()
-
-    /** 滚动事件：任何滚动（页面/WebView）都调用，立刻隐藏并在停止 300ms 后恢复。 */
-    fun onScroll() {
-        _visible.value = false
-        hideTask?.cancel(false)
-        hideTask = scheduler.schedule({ _visible.value = true }, 300, java.util.concurrent.TimeUnit.MILLISECONDS)
-    }
-}
