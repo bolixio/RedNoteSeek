@@ -52,7 +52,7 @@ import com.rednoteseek.designsystem.component.BsToastHost
 import com.rednoteseek.designsystem.component.BsToastState
 import com.rednoteseek.designsystem.component.LocalShowMessage
 import com.rednoteseek.designsystem.theme.BsSpacing
-import com.rednoteseek.designsystem.theme.BottomBarVisibility
+import com.rednoteseek.core.web.BottomBarVisibility
 import com.rednoteseek.designsystem.theme.LocalBarStyle
 import com.rednoteseek.designsystem.theme.barBaseColor
 
