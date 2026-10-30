@@ -66,12 +66,16 @@ fun SettingsScreen(
     bottomBarScale: Float = 1f,
     barColorIndex: Int = 0,
     topBarOpacity: Float = 1f,
+    gridColumns: Int = 2,
+    pageZoom: Float = 1f,
     bottomBarOpacity: Float = 1f,
     onTopBarScaleChange: (Float) -> Unit = {},
     onBottomBarScaleChange: (Float) -> Unit = {},
     onBarColorChange: (Int) -> Unit = {},
     onTopBarOpacityChange: (Float) -> Unit = {},
     onBottomBarOpacityChange: (Float) -> Unit = {},
+    onGridColumnsChange: (Int) -> Unit = {},
+    onPageZoomChange: (Float) -> Unit = {},
     onThemeModeChange: (ThemeMode) -> Unit,
     onClearHistory: () -> Unit,
     onLogout: () -> Unit,
@@ -113,6 +117,10 @@ fun SettingsScreen(
                     topOpacity = topBarOpacity,
                     bottomOpacity = bottomBarOpacity,
                     colorIndex = barColorIndex,
+                    gridColumns = gridColumns,
+                    pageZoom = pageZoom,
+                    onGridColumns = onGridColumnsChange,
+                    onPageZoom = onPageZoomChange,
                     onTopScale = onTopBarScaleChange,
                     onBottomScale = onBottomBarScaleChange,
                     onTopOpacity = onTopBarOpacityChange,
@@ -197,7 +205,7 @@ fun SettingsScreen(
 
 /** 顶部或底部一条滑杆。 */
 @Composable
-private fun StyleSlider(label: String, value: Float, range: ClosedFloatingPointRange<Float>, onChange: (Float) -> Unit) {
+private fun StyleSlider(label: String, value: Float, range: ClosedFloatingPointRange<Float>, onChange: (Float) -> Unit, steps: Int = 0) {
     Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp)) {
         Row(Modifier.fillMaxWidth()) {
             Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
@@ -207,7 +215,7 @@ private fun StyleSlider(label: String, value: Float, range: ClosedFloatingPointR
                 color = MaterialTheme.colorScheme.primary,
             )
         }
-        Slider(value = value, onValueChange = onChange, valueRange = range)
+        Slider(value = value, onValueChange = onChange, valueRange = range, steps = steps)
     }
 }
 
@@ -222,6 +230,10 @@ private fun BarStyleSliders(
     topOpacity: Float,
     bottomOpacity: Float,
     colorIndex: Int,
+    gridColumns: Int,
+    pageZoom: Float,
+    onGridColumns: (Int) -> Unit,
+    onPageZoom: (Float) -> Unit,
     onTopScale: (Float) -> Unit,
     onBottomScale: (Float) -> Unit,
     onTopOpacity: (Float) -> Unit,
@@ -229,6 +241,8 @@ private fun BarStyleSliders(
     onColor: (Int) -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        StyleSlider("搜索结果列数", gridColumns.toFloat(), 2f..6f, { onGridColumns(it.roundToInt()) }, steps = 3)
+        StyleSlider("网页缩放", pageZoom, 0.5f..1.2f, onPageZoom)
         StyleSlider("顶栏高度", topScale, 0.6f..1.4f, onTopScale)
         StyleSlider("底栏高度", bottomScale, 0.6f..1.4f, onBottomScale)
         StyleSlider("顶栏不透明度", topOpacity, 0.2f..1f, onTopOpacity)
