@@ -128,4 +128,27 @@ class SettingsStore(private val context: Context) {
     suspend fun setBottomBarOpacity(v: Float) {
         context.settingsDataStore.edit { it[bottomBarOpacityKey] = v.coerceIn(0.2f, 1f) }
     }
+
+
+    /** 搜索结果网格列数（2~4）。 */
+    private val gridColumnsKey = intPreferencesKey("grid_columns")
+
+    val gridColumns: Flow<Int> = context.settingsDataStore.data.map { prefs ->
+        (prefs[gridColumnsKey] ?: 2).coerceIn(2, 6)
+    }
+
+    suspend fun setGridColumns(n: Int) {
+        context.settingsDataStore.edit { it[gridColumnsKey] = n.coerceIn(2, 6) }
+    }
+
+    /** 网页缩放（0.5~1.2，1=100%），作用于所有 WebView 页面（搜索结果页是原生 UI，详情页是网页）。 */
+    private val pageZoomKey = floatPreferencesKey("page_zoom")
+
+    val pageZoom: Flow<Float> = context.settingsDataStore.data.map { prefs ->
+        (prefs[pageZoomKey] ?: 1f).coerceIn(0.5f, 1.2f)
+    }
+
+    suspend fun setPageZoom(v: Float) {
+        context.settingsDataStore.edit { it[pageZoomKey] = v.coerceIn(0.5f, 1.2f) }
+    }
 }
