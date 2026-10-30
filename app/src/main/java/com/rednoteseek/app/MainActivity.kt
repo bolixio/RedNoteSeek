@@ -164,11 +164,11 @@ private fun Root() {
 
     Box(Modifier.fillMaxSize()) {
         // 对话引擎（点点会话）挂在最底层，所有原生界面和另两个网页都会遮住它
-        if (chatActive) XhsWebViewHost(app.chatEngine, Modifier.fillMaxSize().systemBarsPadding())
+        if (chatActive) XhsWebViewHost(app.chatEngine, Modifier.fillMaxSize().systemBarsPadding(), pageZoom = { pageZoom })
         // 第二引擎（主页 / 收藏）挂在更底层，必须先于主引擎：登录时主 WebView 要在上面可见
-        XhsWebViewHost(pageEngine, Modifier.fillMaxSize().systemBarsPadding())
+        XhsWebViewHost(pageEngine, Modifier.fillMaxSize().systemBarsPadding(), pageZoom = { pageZoom })
         // 网页引擎垫在最底层：登录时用户直接操作它；登录后被原生界面完全遮住，仍在后台加载页面
-        XhsWebViewHost(engine, Modifier.fillMaxSize().systemBarsPadding())
+        XhsWebViewHost(engine, Modifier.fillMaxSize().systemBarsPadding(), pageZoom = { pageZoom })
         when (loginState) {
             LoginState.Unknown -> Box(
                 Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).pointerInput(Unit) {},
