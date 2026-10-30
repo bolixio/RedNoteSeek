@@ -97,6 +97,7 @@ import com.rednoteseek.core.web.BottomBarVisibility
 import com.rednoteseek.designsystem.theme.BsSpacing
 import com.rednoteseek.designsystem.theme.LocalBarStyle
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onEach
 import kotlin.math.roundToInt
 
 /**
